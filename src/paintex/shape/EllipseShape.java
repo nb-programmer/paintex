@@ -9,12 +9,10 @@ public class EllipseShape extends Shape {
 
 	public EllipseShape(int x1, int y1, Color strokeColor, BasicStroke stroke, Color fillColor, boolean isFilled) {
 		super(x1, y1, strokeColor, stroke, fillColor, isFilled);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected void render(BufferedImage img, Graphics2D g, int x, int y, int w, int h) {
-		// TODO Auto-generated method stub
 		if (w < 0) {
 			x += w;
 			w *= -1;

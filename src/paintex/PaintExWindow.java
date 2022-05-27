@@ -4,12 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
+import java.io.File;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileFilter;
 
 import paintex.event.CanvasUpdateEvent;
 import paintex.event.CanvasUpdateListener;
@@ -36,12 +39,23 @@ public class PaintExWindow extends JFrame {
 	//Event listeners
 	protected StatusBarUpdater statusBarUpdate;
 	protected ToolbarHandler toolbarAction;
+	
+	//Image to save on disk
+	protected ImageInstance currentImage;
 
 	public PaintExWindow() {
 		super(APPLICATION_TITLE);
 		this.initWindow();
 		this.initAllComponents();
 		this.addAllComponents();
+		currentImage = new ImageInstance();
+		reset();
+	}
+	
+	public void reset() {
+		this.paintCanvas.reset();
+		this.toolBar.reset();
+		this.colorChoosePanel.reset();
 	}
 
 	protected void initWindow() {
@@ -134,12 +148,26 @@ public class PaintExWindow extends JFrame {
 		protected PaintExCanvas canvas;
 		protected ToolBar toolBar;
 		protected ColorPalettePanel colSelector;
-		protected JFrame owner;
-		public ToolbarHandler(JFrame owner, PaintExCanvas canvas, ToolBar toolBar, ColorPalettePanel colSelector) {
+		protected PaintExWindow owner;
+		private FileFilter imageFilter;
+		
+		public ToolbarHandler(PaintExWindow owner, PaintExCanvas canvas, ToolBar toolBar, ColorPalettePanel colSelector) {
 			this.owner = owner;
 			this.canvas = canvas;
 			this.toolBar = toolBar;
 			this.colSelector = colSelector;
+			
+			this.imageFilter = new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "Image Files";
+				}
+				
+				@Override
+				public boolean accept(File f) {
+					return true;
+				}
+			};
 		}
 
 		@Override
@@ -170,9 +198,8 @@ public class PaintExWindow extends JFrame {
 			if (newImgSize.isConfirmed()) {
 				this.canvas.setPreferredSize(newImgSize.getNewDimension());
 				this.canvas.clearCanvas();
-				this.canvas.reset();
-				this.toolBar.reset();
-				this.colSelector.reset();
+				owner.currentImage = new ImageInstance();
+				owner.reset();
 			}
 		}
 
@@ -184,8 +211,39 @@ public class PaintExWindow extends JFrame {
 
 		@Override
 		public void imageOpen(ToolbarEvent e) {
-			// TODO Auto-generated method stub
+			if (owner.currentImage.isModified) {
+				int saveDialogAnswer = JOptionPane.showConfirmDialog(owner, String.format("Would you like to save changes to \"%s\"?", owner.currentImage.filePath.getName()), "Save modified image", JOptionPane.YES_NO_CANCEL_OPTION);
+				//Cancelled saving, return back to image
+				switch (saveDialogAnswer) {
+				case JOptionPane.YES_OPTION:
+					canvas.saveImageToFile(owner.currentImage.filePath);
+					break;
+				case JOptionPane.CANCEL_OPTION:
+				case JOptionPane.CLOSED_OPTION:
+					return;
+				}
+			}
 			
+			//Find an image file
+			JFileChooser fc = new JFileChooser(ImageInstance.lastUseDir);
+			fc.setFileFilter(this.imageFilter);
+			
+			int response = fc.showOpenDialog(owner);
+			switch (response) {
+			case JFileChooser.APPROVE_OPTION:
+				File imgFile = fc.getSelectedFile();
+				if (this.canvas.loadImageFromFile(imgFile)) {
+					//Update image instance
+					String imgPath = imgFile.getParentFile().getAbsolutePath();
+					owner.currentImage = new ImageInstance(imgFile, imgPath);
+					reset();
+				}
+				break;
+			
+			case JFileChooser.CANCEL_OPTION:
+			default:
+				break;
+			}
 		}
 
 		@Override

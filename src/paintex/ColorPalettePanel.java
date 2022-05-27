@@ -88,29 +88,29 @@ public class ColorPalettePanel extends JToolBar {
 			String colType = null;
 			switch (btn.type) {
 			case SWATCH_CHOOSEWHEEL_PRIMARY:
-				colType = "Primary";
+				colType = ToolbarEvent.TARGET_PRIMARY;
 				selCol = getColorChooserColor(btn.getBackground(), colType);
 				break;
 			case SWATCH_CHOOSEWHEEL_SECONDARY:
-				colType = "Secondary";
+				colType = ToolbarEvent.TARGET_SECONDARY;
 				selCol = getColorChooserColor(btn.getBackground(), colType);
 				break;
 			case SWATCH_COLORPRESET:
 				selCol = btn.getBackground();
 				//Choose secondary color if Shift-key is held
 				if ((e.getModifiers() & ActionEvent.SHIFT_MASK) == 0)
-					colType = "Primary";
+					colType = ToolbarEvent.TARGET_PRIMARY;
 				else
-					colType = "Secondary";
+					colType = ToolbarEvent.TARGET_SECONDARY;
 				break;
 			default:
 				break;
 			}
 			
 			if (selCol != null) {
-				if (colType == "Primary")
+				if (colType.compareTo(ToolbarEvent.TARGET_PRIMARY) == 0)
 					parent.setPrimaryColor(selCol);
-				else if (colType == "Secondary")
+				else if (colType.compareTo(ToolbarEvent.TARGET_SECONDARY) == 0)
 					parent.setSecondaryColor(selCol);
 			}
 		}

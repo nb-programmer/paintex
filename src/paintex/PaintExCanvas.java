@@ -10,6 +10,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -265,5 +269,28 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 	public void emitCanvasSizeEvent(int width, int height) {
 		if (canvasListener == null) return;
 		canvasListener.canvasDimension(new CanvasUpdateEvent(this, CanvasUpdateEvent.CANVAS_DIMENSIONCHANGE, width, height));
+	}
+
+	public boolean loadImageFromFile(File imgFile) {
+		try {
+			BufferedImage img_loaded = ImageIO.read(imgFile);
+			this.setPreferredSize(new Dimension(img_loaded.getWidth(), img_loaded.getHeight()));
+			clearCanvas();
+			this.canvas.getGraphics().drawImage(img_loaded, 0, 0, null);
+			return true;
+		} catch (IOException e) { }
+		return false;
+	}
+
+	public BufferedImage getImageData() {
+		return this.canvas;
+	}
+
+	public boolean saveImageToFile(File filePath) {
+		try {
+			ImageIO.write(this.canvas, "png", filePath);
+			return true;
+		} catch (IOException e) { }
+		return false;
 	}
 }
