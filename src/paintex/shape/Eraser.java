@@ -30,9 +30,10 @@ public class Eraser extends Shape {
 
 	@Override
 	protected void render(BufferedImage img, Graphics2D g, int x, int y, int w, int h) {
+		int eraserSize = 10;
 		//Draw each point as rectangle
 		g.setColor(this.fillColor);
 		for (Point p : eraserPoints)
-		    g.fillRect(p.x, p.y,10,10);
+		    g.fillRect(p.x - eraserSize/2, p.y - eraserSize/2, eraserSize, eraserSize);
 	}
 }
