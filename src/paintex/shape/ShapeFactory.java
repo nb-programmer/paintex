@@ -8,14 +8,14 @@ import paintex.ToolBar.PaintToolType;
 public class ShapeFactory {
 	public static Shape getShape(PaintToolType activeTool, int x1, int y1, Color strokeColor, BasicStroke stroke, Color fillColor, boolean isFilled) {
 		switch (activeTool) {
-		case TOOL_BRUSH:
-			break;
-		case TOOL_ELLIPSE:
-			break;
 		case TOOL_ERASER:
-			break;
+			return new Eraser(x1, y1,x1, y1, strokeColor, stroke, fillColor, isFilled);
+		case TOOL_ELLIPSE:
+			return new EllipseShape(x1, y1, strokeColor, stroke, fillColor, isFilled);
+		case TOOL_BRUSH:
+			return new BrushShape(x1, y1,x1,y1,strokeColor, stroke, fillColor, isFilled);
 		case TOOL_LINE:
-			break;
+			return new LineShape(x1, y1, strokeColor, stroke, fillColor, isFilled);
 		case TOOL_PENCIL:
 			return new PencilShape(x1, y1, x1, y1, strokeColor, stroke, fillColor, isFilled);
 		case TOOL_RECT:

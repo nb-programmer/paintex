@@ -1,0 +1,7 @@
+package paintex;
+
+public enum SwatchType {
+	SWATCH_COLORPRESET,
+	SWATCH_CHOOSEWHEEL_PRIMARY,
+	SWATCH_CHOOSEWHEEL_SECONDARY
+}

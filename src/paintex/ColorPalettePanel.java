@@ -62,11 +62,6 @@ public class ColorPalettePanel extends JToolBar {
 	}
 	
 	private class ColorSwatchButton extends JButton {
-		public enum SwatchType {
-			SWATCH_COLORPRESET,
-			SWATCH_CHOOSEWHEEL_PRIMARY,
-			SWATCH_CHOOSEWHEEL_SECONDARY
-		}
 		public SwatchType type;
 		public ColorSwatchButton(Color c, SwatchType type) {
 			super("");
@@ -134,8 +129,8 @@ public class ColorPalettePanel extends JToolBar {
 		
 		addSeparator();
 		
-		primaryColor = new ColorSwatchButton(Color.BLACK, ColorSwatchButton.SwatchType.SWATCH_CHOOSEWHEEL_PRIMARY);
-		secondaryColor = new ColorSwatchButton(Color.WHITE, ColorSwatchButton.SwatchType.SWATCH_CHOOSEWHEEL_SECONDARY);
+		primaryColor = new ColorSwatchButton(Color.BLACK, SwatchType.SWATCH_CHOOSEWHEEL_PRIMARY);
+		secondaryColor = new ColorSwatchButton(Color.WHITE, SwatchType.SWATCH_CHOOSEWHEEL_SECONDARY);
 
 		primaryColor.addActionListener(this.swatchListener);
 		secondaryColor.addActionListener(this.swatchListener);
