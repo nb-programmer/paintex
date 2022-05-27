@@ -22,6 +22,11 @@ public class Eraser extends Shape {
 		super.updatePointer(x, y, modifier);
 		this.eraserPoints.add(new Point(x, y));
 	}
+	
+	@Override
+	public boolean needsDraggingDraw() {
+		return false;
+	}
 
 	@Override
 	protected void render(BufferedImage img, Graphics2D g, int x, int y, int w, int h) {

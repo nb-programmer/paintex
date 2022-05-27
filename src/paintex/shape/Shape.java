@@ -48,6 +48,10 @@ public abstract class Shape {
 		this.y2 = y;
 	}
 	
+	public boolean needsDraggingDraw() {
+		return true;
+	}
+	
 	/**
 	 * What action to perform when mouse moves dragging the shape
 	 * @param x

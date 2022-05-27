@@ -33,6 +33,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 	private Color fillColor;
 	private BasicStroke strokeType;
 	private boolean isFilled;
+	private boolean isStroked;
 	
 	private CanvasUpdateListener canvasListener;
 
@@ -60,6 +61,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		this.fillColor = Color.WHITE;
 		this.strokeType = new BasicStroke(1.0f);
 		this.isFilled = false;
+		this.isStroked = true;
 	}
 	
 	@Override
@@ -170,7 +172,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		int y1 = e.getY();
 		
 		//Get shape selected
-		drawShape = ShapeFactory.getShape(activeTool, x1, y1, primary, strokeType, secondary, isFilled);
+		drawShape = ShapeFactory.getShape(activeTool, x1, y1, primary, strokeType, secondary, isFilled, isStroked);
 		clearPreview();
 	}
 
@@ -207,9 +209,15 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		//Draw only if mouse was dragged a bit
-		if (isShapeDragged) {
-			isShapeDragged = false;
-			if (drawShape != null) {
+		if (drawShape != null) {
+			boolean shouldDraw = false;
+			
+			if (drawShape.needsDraggingDraw() && isShapeDragged || !drawShape.needsDraggingDraw()) {
+				isShapeDragged = false;
+				shouldDraw = true;
+			}
+			
+			if (shouldDraw) {
 				int x2 = e.getX();
 				int y2 = e.getY();
 				boolean mod = e.isShiftDown();
