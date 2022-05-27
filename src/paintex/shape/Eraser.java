@@ -9,27 +9,25 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Eraser extends Shape {
-private ArrayList<Point> brushPoints;
+	private ArrayList<Point> eraserPoints;
 	
-
 	public Eraser(int x1, int y1, int x2, int y2, Color strokeColor, BasicStroke stroke, Color fillColor,
 			boolean isFilled) {
 		super(x1, y1, x2, y2, strokeColor, stroke, fillColor, isFilled);
-		this.brushPoints = new ArrayList<Point>();
+		this.eraserPoints = new ArrayList<Point>();
 	}
 	
 	@Override
 	public void updatePointer(int x, int y, boolean modifier) {
 		super.updatePointer(x, y, modifier);
-		this.brushPoints.add(new Point(x, y));
+		this.eraserPoints.add(new Point(x, y));
 	}
 
 	@Override
 	protected void render(BufferedImage img, Graphics2D g, int x, int y, int w, int h) {
-		//Draw each point
-		for (Point p : brushPoints)
+		//Draw each point as rectangle
+		g.setColor(this.fillColor);
+		for (Point p : eraserPoints)
 		    g.fillRect(p.x, p.y,10,10);
-		
 	}
-
 }

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class BrushShape extends Shape {
 	private ArrayList<Point> brushPoints;
 	
-
 	public BrushShape(int x1, int y1, int x2, int y2, Color strokeColor, BasicStroke stroke, Color fillColor,
 			boolean isFilled) {
 		super(x1, y1, x2, y2, strokeColor, stroke, fillColor, isFilled);
@@ -26,8 +25,6 @@ public class BrushShape extends Shape {
 
 	@Override
 	protected void render(BufferedImage img, Graphics2D g, int x, int y, int w, int h) {
-		g.setStroke(new BasicStroke(15.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_ROUND));
-
 		GeneralPath polyline = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
 
 		//Start at first point
@@ -38,6 +35,7 @@ public class BrushShape extends Shape {
 		    polyline.lineTo(p.x, p.y);
 
 		//Draw path to the image
+		g.setStroke(new BasicStroke(15.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
 		g.draw(polyline);
 	}
 }

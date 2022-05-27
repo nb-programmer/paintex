@@ -24,10 +24,10 @@ public class EllipseShape extends Shape {
 			h *= -1;
 		}
 		//Draw the shape
-				if (this.isFilled) {
-					g.setColor(this.fillColor);
-					g.fillRect(x, y, w, h);
-				}
+		if (this.isFilled) {
+			g.setColor(this.fillColor);
+			g.fillOval(x, y, w, h);
+		}
 				
 		g.setColor(this.strokeColor);
 		g.drawOval(x, y, w, h);
