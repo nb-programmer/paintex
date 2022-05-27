@@ -4,10 +4,15 @@ import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
 
+import paintex.ToolBar.ColorFillStyle;
 import paintex.ToolBar.ImageActionType;
 import paintex.ToolBar.PaintToolType;
 
 public class ToolbarEvent extends AWTEvent {
+	public static final String TARGET_FILL_TYPE = "FillType";
+	public static final String TARGET_PRIMARY = "Primary";
+	public static final String TARGET_SECONDARY = "Secondary";
+	
 	public static final int TOOLBAR_TOOLSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 3;
 	public static final int TOOLBAR_BRUSHSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 4;
 	public static final int TOOLBAR_COLORSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 5;
@@ -16,6 +21,7 @@ public class ToolbarEvent extends AWTEvent {
 	public int selection_id;
 	public ImageActionType actionType;
 	public PaintToolType toolType;
+	public ColorFillStyle fillType;
 	public Color selectedColor;
 	public String selectTarget;
 	
@@ -29,6 +35,11 @@ public class ToolbarEvent extends AWTEvent {
 	public ToolbarEvent(Component source, int id, ImageActionType actionType) {
 		super(source, id);
 		this.actionType = actionType;
+	}
+	public ToolbarEvent(Component source, int id, ColorFillStyle fillType) {
+		super(source, id);
+		this.fillType = fillType;
+		this.selectTarget = TARGET_FILL_TYPE;
 	}
 	public ToolbarEvent(Component source, int id, Color color, String colorType) {
 		super(source, id);

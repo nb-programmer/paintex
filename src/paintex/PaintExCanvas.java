@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import paintex.event.PaintExEventMulticaster;
 import paintex.shape.Shape;
 import paintex.shape.ShapeFactory;
+import paintex.ToolBar.ColorFillStyle;
 import paintex.ToolBar.PaintToolType;
 import paintex.event.CanvasUpdateEvent;
 import paintex.event.CanvasUpdateListener;
@@ -135,6 +136,22 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 
 	public void setLineThickness(float f) {
 		this.strokeType = new BasicStroke(f);
+	}
+	
+	public void setFillStyle(ColorFillStyle style) {
+		switch (style) {
+		case FILL_ONLY:
+			this.isFilled = true;
+			break;
+		case FILL_OUTLINE_BOTH:
+			this.isFilled = true;
+			break;
+		case OUTLINE_ONLY:
+			this.isFilled = false;
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override

@@ -155,10 +155,13 @@ public class PaintExWindow extends JFrame {
 
 		@Override
 		public void colorSelect(ToolbarEvent e) {
-			if (e.selectTarget.compareTo("Primary") == 0)
+			if (e.selectTarget.compareTo(ToolbarEvent.TARGET_PRIMARY) == 0)
 				this.canvas.setStrokeColor(e.selectedColor);
-			else if (e.selectTarget.compareTo("Secondary") == 0)
+			else if (e.selectTarget.compareTo(ToolbarEvent.TARGET_SECONDARY) == 0)
 				this.canvas.setFillColor(e.selectedColor);
+			else if (e.selectTarget.compareTo(ToolbarEvent.TARGET_FILL_TYPE) == 0) {
+				this.canvas.setFillStyle(e.fillType);
+			}
 		}
 
 		@Override

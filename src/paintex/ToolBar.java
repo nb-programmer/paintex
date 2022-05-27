@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import paintex.event.PaintExEventMulticaster;
@@ -24,6 +28,8 @@ import paintex.event.ToolbarListener;
 
 public class ToolBar extends JToolBar implements ActionListener {
 	
+	private static final String[] THICKNESS_VALUES = {"1", "2", "3", "4", "5", "6", "7", "8"};
+
 	/**
 	 * Action to perform on image
 	 */
@@ -67,6 +73,12 @@ public class ToolBar extends JToolBar implements ActionListener {
 		PaintToolType(String text) {
 			this(text, null);
 		}
+	}
+	
+	public enum ColorFillStyle {
+		OUTLINE_ONLY,
+		FILL_ONLY,
+		FILL_OUTLINE_BOTH
 	}
 	
 	/**
@@ -145,19 +157,51 @@ public class ToolBar extends JToolBar implements ActionListener {
 			tool_btn.addActionListener(this);
 		}
 
-		String[] items = {"1", "2", "3", "4", "5", "6", "7", "8"};
-
-		selectLineThickness = new JComboBox<String>(items);
+		selectLineThickness = new JComboBox<String>(THICKNESS_VALUES);
+		selectLineThickness.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				JComboBox<String> thChooser = (JComboBox<String>)e.getSource();
+				//Thickness value
+				String thicknessItem = (String) thChooser.getSelectedItem();
+				try {
+					float thickness = Float.parseFloat(thicknessItem);
+					System.out.println(thickness);
+				} catch (NumberFormatException ex) {}
+			}
+		});
+		
 		this.addSeparator();
 		this.add(selectLineThickness);
-		
+
+		//TODO: Make this 3-way radio button
 		toolIsFillBox = new JToggleButton("Fill");
-		toolIsFillBox.setSelected(false);
+		toolIsFillBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				//Toggle fill mode
+				JToggleButton source = (JToggleButton) e.getSource();
+				ColorFillStyle fs;
+				
+				//Choose style
+				if (source.isSelected()) {
+					fs = ColorFillStyle.FILL_OUTLINE_BOTH;
+				} else {
+					fs = ColorFillStyle.OUTLINE_ONLY;
+				}
+				
+				if (toolbarListener == null) return;
+				ToolbarEvent ev = new ToolbarEvent(source, ToolbarEvent.TOOLBAR_TOOLSELECT, fs);
+				toolbarListener.colorSelect(ev);
+			}
+		});
+		
 		this.add(toolIsFillBox);
 	}
 	
 	public void reset() {
 		selectLineThickness.setSelectedIndex(0);
+		toolIsFillBox.setSelected(false);
 	}
 	
 	public synchronized void addToolbarListener(ToolbarListener l) {
