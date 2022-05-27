@@ -12,12 +12,12 @@ public class ToolbarEvent extends AWTEvent {
 	public static final String TARGET_FILL_TYPE = "FillType";
 	public static final String TARGET_PRIMARY = "Primary";
 	public static final String TARGET_SECONDARY = "Secondary";
-	
-	public static final int TOOLBAR_TOOLSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 3;
-	public static final int TOOLBAR_BRUSHSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 4;
-	public static final int TOOLBAR_COLORSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 5;
-	public static final int TOOLBAR_IMAGEACTION		= java.awt.AWTEvent.RESERVED_ID_MAX + 6;
-	
+
+	public static final int TOOLBAR_TOOLSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 11;
+	public static final int TOOLBAR_BRUSHSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 12;
+	public static final int TOOLBAR_COLORSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 13;
+	public static final int TOOLBAR_IMAGEACTION		= java.awt.AWTEvent.RESERVED_ID_MAX + 14;
+
 	public int selection_id;
 	public ImageActionType actionType;
 	public PaintToolType toolType;

@@ -7,6 +7,7 @@ import java.awt.Point;
 public class CanvasUpdateEvent extends AWTEvent {
 	public static final int CANVAS_POINTERPOSCHANGE = java.awt.AWTEvent.RESERVED_ID_MAX + 1;
 	public static final int CANVAS_DIMENSIONCHANGE = java.awt.AWTEvent.RESERVED_ID_MAX + 2;
+	public static final int CANVAS_MODIFICATION = java.awt.AWTEvent.RESERVED_ID_MAX + 3;
 	
 	public int x, y;
 	

@@ -19,7 +19,7 @@ import paintex.event.CanvasUpdateListener;
 import paintex.event.ToolbarEvent;
 import paintex.event.ToolbarListener;
 
-public class PaintExWindow extends JFrame {
+public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	private static final String APPLICATION_TITLE = "PaintEx";
 
 	private JPanel contentPane;
@@ -36,19 +36,20 @@ public class PaintExWindow extends JFrame {
 	private final int CONTENT_PANE_WIDTH = 1280;
 	private final int CONTENT_PANE_HEIGHT = 720;
 	
-	//Event listeners
-	protected StatusBarUpdater statusBarUpdate;
+	//Event handlers
 	protected ToolbarHandler toolbarAction;
 	
 	//Image to save on disk
-	protected ImageInstance currentImage;
+	private ImageInstance currentImage;
+	private FileFilter imageFileFilter;
+	private FileFilter imageExportFileFilter;
 
 	public PaintExWindow() {
 		super(APPLICATION_TITLE);
 		this.initWindow();
+		this.initFileManager();
 		this.initAllComponents();
 		this.addAllComponents();
-		currentImage = new ImageInstance();
 		reset();
 	}
 	
@@ -56,6 +57,53 @@ public class PaintExWindow extends JFrame {
 		this.paintCanvas.reset();
 		this.toolBar.reset();
 		this.colorChoosePanel.reset();
+	}
+	
+	private boolean matchExtension(File f, String[] extensions) {
+		if (f.isDirectory()) {
+			return true;
+		} else {
+			String path = f.getAbsolutePath().toLowerCase();
+			for (int i = 0; i < extensions.length; i++) {
+				String extension = extensions[i];
+				
+				//Check file extension
+				if (path.endsWith(extension) &&(path.charAt(path.length() - extension.length())) == '.')
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public void initFileManager() {
+		this.currentImage = new ImageInstance();
+		this.imageFileFilter = new FileFilter() {
+			private static String IMAGE_EXT[] = {".png", ".jpg", ".jpeg", ".bmp"};
+			
+			@Override
+			public String getDescription() {
+				return String.format("Image Files (%s)", String.join("; ", IMAGE_EXT));
+			}
+			
+			@Override
+			public boolean accept(File f) {
+				return matchExtension(f, IMAGE_EXT);
+			}
+		};
+		
+		this.imageExportFileFilter = new FileFilter() {
+			private static String EXPORT_EXT[] = {".pdf"};
+			
+			@Override
+			public String getDescription() {
+				return String.format("Document Export Files (%s)", String.join("; ", EXPORT_EXT));
+			}
+			
+			@Override
+			public boolean accept(File f) {
+				return matchExtension(f, EXPORT_EXT);
+			}
+		};
 	}
 
 	protected void initWindow() {
@@ -84,11 +132,10 @@ public class PaintExWindow extends JFrame {
 		canvasScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		contentPane.add(canvasScroll);
 		
-		statusBarUpdate = new StatusBarUpdater(statusBar, canvasScroll);
 		toolbarAction = new ToolbarHandler(this, paintCanvas, toolBar, colorChoosePanel);
 		
 		//Register Event listeners
-		paintCanvas.addCanvasListener(statusBarUpdate);
+		paintCanvas.addCanvasListener(this);
 		toolBar.addToolbarListener(toolbarAction);
 		colorChoosePanel.addToolbarListener(toolbarAction);
 	}
@@ -109,8 +156,110 @@ public class PaintExWindow extends JFrame {
 	}
 
 	public void start() {
-		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setVisible(true);
+	}
+	
+	/**
+	 * Save currently open image to the disk
+	 * 
+	 * @return Whether to continue after dialog closes. false if user cancels saving or saving fails
+	 */
+	public boolean saveModifiedConfirm(boolean askConfirm) {
+		int saveDialogAnswer;
+		if (askConfirm) {
+			if (this.currentImage.isModified) {
+				saveDialogAnswer = JOptionPane.showConfirmDialog(
+					this,
+					String.format(
+						"Would you like to save changes to \"%s\"?",
+						this.currentImage.filePath.getName()),
+					"Save modified image",
+					JOptionPane.YES_NO_CANCEL_OPTION);
+			} else {
+				saveDialogAnswer = JOptionPane.NO_OPTION;
+			}
+		} else {
+			saveDialogAnswer = JOptionPane.YES_OPTION;
+		}
+		
+		//Check user's answer
+		switch (saveDialogAnswer) {
+		case JOptionPane.YES_OPTION:
+			if (!setSaveFilePathUnsaved()) break;
+			
+			if (this.paintCanvas.saveImageToFile(this.currentImage.filePath)) {
+				this.currentImage.isModified = false;
+				return true;
+			}
+			
+			//Failed to save
+			//TODO: Show message
+			break;
+
+		case JOptionPane.NO_OPTION:
+			return true;
+
+			//Cancelled saving, return back to image
+		case JOptionPane.CANCEL_OPTION:
+		case JOptionPane.CLOSED_OPTION:
+			break;
+		}
+		return false;
+	}
+	
+	private boolean setSaveFilePathUnsaved() {
+		if (this.currentImage.filePath.exists()) return true;
+		
+		JFileChooser fc = new JFileChooser(ImageInstance.lastUseDir);
+		fc.setFileFilter(this.imageFileFilter);
+		int response = fc.showSaveDialog(this);
+		switch (response) {
+		case JFileChooser.APPROVE_OPTION:
+			File imgFile = fc.getSelectedFile();
+			String imgPath = imgFile.getParentFile().getAbsolutePath();
+			this.currentImage = new ImageInstance(imgFile, imgPath);
+			return true;
+		case JFileChooser.CANCEL_OPTION:
+		default:
+			break;
+		}
+		return false;
+	}
+
+	public boolean saveModifiedConfirm() {
+		return saveModifiedConfirm(true);
+	}
+
+	/**
+	 * Open a new File dialog to browse an image file
+	 */
+	public void openNewImage() {
+		//Check if image was modified
+		if (!saveModifiedConfirm()) return;
+		
+		//Find an image file using the Open file window
+		JFileChooser fc = new JFileChooser(ImageInstance.lastUseDir);
+		fc.setFileFilter(this.imageFileFilter);
+		int response = fc.showOpenDialog(this);
+		switch (response) {
+		case JFileChooser.APPROVE_OPTION:
+			File imgFile = fc.getSelectedFile();
+			if (this.paintCanvas.loadImageFromFile(imgFile)) {
+				//Update image instance
+				String imgPath = imgFile.getParentFile().getAbsolutePath();
+				this.currentImage = new ImageInstance(imgFile, imgPath);
+				this.reset();
+			} else {
+				//Failed to load
+				//TODO: Show message
+			}
+			break;
+		
+		case JFileChooser.CANCEL_OPTION:
+		default:
+			break;
+		}
 	}
 
 	/**
@@ -119,55 +268,43 @@ public class PaintExWindow extends JFrame {
 	private class WindowCloser extends WindowAdapter {
 		@Override
 		public void windowClosing(WindowEvent event) {
+			if (!saveModifiedConfirm(true)) return;
 			System.exit(0);
 		}
 	}
 	
-	public class StatusBarUpdater implements CanvasUpdateListener {
-		protected StatusInfo statusBar;
-		protected JScrollPane canvasScroll;
-		
-		public StatusBarUpdater(StatusInfo statusBar, JScrollPane canvasScroll) {
-			this.statusBar = statusBar;
-			this.canvasScroll = canvasScroll;
-		}
-
-		@Override
-		public void canvasPointerPosition(CanvasUpdateEvent e) {
-			this.statusBar.setCoordinate(e.x, e.y);
-		}
-
-		@Override
-		public void canvasDimension(CanvasUpdateEvent e) {
-			this.statusBar.setCanvasSize(e.x, e.y);
-			this.canvasScroll.invalidate();
-		}
+	
+	/* Canvas events */
+	
+	@Override
+	public void canvasPointerPosition(CanvasUpdateEvent e) {
+		this.statusBar.setCoordinate(e.x, e.y);
 	}
+
+	@Override
+	public void canvasDimension(CanvasUpdateEvent e) {
+		this.statusBar.setCanvasSize(e.x, e.y);
+		this.canvasScroll.invalidate();
+	}
+
+	@Override
+	public void canvasImageModify(CanvasUpdateEvent e) {
+		this.currentImage.isModified = true;
+	}
+	
+	/* Toolbar events */
 	
 	public class ToolbarHandler implements ToolbarListener {
 		protected PaintExCanvas canvas;
 		protected ToolBar toolBar;
 		protected ColorPalettePanel colSelector;
 		protected PaintExWindow owner;
-		private FileFilter imageFilter;
 		
 		public ToolbarHandler(PaintExWindow owner, PaintExCanvas canvas, ToolBar toolBar, ColorPalettePanel colSelector) {
 			this.owner = owner;
 			this.canvas = canvas;
 			this.toolBar = toolBar;
 			this.colSelector = colSelector;
-			
-			this.imageFilter = new FileFilter() {
-				@Override
-				public String getDescription() {
-					return "Image Files";
-				}
-				
-				@Override
-				public boolean accept(File f) {
-					return true;
-				}
-			};
 		}
 
 		@Override
@@ -194,56 +331,25 @@ public class PaintExWindow extends JFrame {
 
 		@Override
 		public void imageNew(ToolbarEvent e) {
+			if (!owner.saveModifiedConfirm()) return;
+			
 			ImageSizeDialog newImgSize = new ImageSizeDialog(owner, canvas.getPreferredSize());
 			if (newImgSize.isConfirmed()) {
 				this.canvas.setPreferredSize(newImgSize.getNewDimension());
 				this.canvas.clearCanvas();
-				owner.currentImage = new ImageInstance();
+				owner.currentImage = new ImageInstance(ImageInstance.lastUseDir);
 				owner.reset();
 			}
 		}
 
 		@Override
 		public void imageSave(ToolbarEvent e) {
-			// TODO Auto-generated method stub
-			
+			owner.saveModifiedConfirm(false);
 		}
 
 		@Override
 		public void imageOpen(ToolbarEvent e) {
-			if (owner.currentImage.isModified) {
-				int saveDialogAnswer = JOptionPane.showConfirmDialog(owner, String.format("Would you like to save changes to \"%s\"?", owner.currentImage.filePath.getName()), "Save modified image", JOptionPane.YES_NO_CANCEL_OPTION);
-				//Cancelled saving, return back to image
-				switch (saveDialogAnswer) {
-				case JOptionPane.YES_OPTION:
-					canvas.saveImageToFile(owner.currentImage.filePath);
-					break;
-				case JOptionPane.CANCEL_OPTION:
-				case JOptionPane.CLOSED_OPTION:
-					return;
-				}
-			}
-			
-			//Find an image file
-			JFileChooser fc = new JFileChooser(ImageInstance.lastUseDir);
-			fc.setFileFilter(this.imageFilter);
-			
-			int response = fc.showOpenDialog(owner);
-			switch (response) {
-			case JFileChooser.APPROVE_OPTION:
-				File imgFile = fc.getSelectedFile();
-				if (this.canvas.loadImageFromFile(imgFile)) {
-					//Update image instance
-					String imgPath = imgFile.getParentFile().getAbsolutePath();
-					owner.currentImage = new ImageInstance(imgFile, imgPath);
-					reset();
-				}
-				break;
-			
-			case JFileChooser.CANCEL_OPTION:
-			default:
-				break;
-			}
+			owner.openNewImage();
 		}
 
 		@Override

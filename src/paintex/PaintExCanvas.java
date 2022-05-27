@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -55,7 +56,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		this.emitCanvasSizeEvent(width, height);
+		this.emitCanvasSizeEvent();
 	}
 	
 	public void reset() {
@@ -90,7 +91,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		//Canvas for preview while dragging
 		preview = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		
-		this.emitCanvasSizeEvent(preferredSize.width, preferredSize.height);
+		this.emitCanvasSizeEvent();
 		repaint();
 	}
 	
@@ -162,7 +163,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		emitPointerPositionEvent(e);
+		emitPointerPositionEvent(e.getPoint());
 		
 		//Right-click to switch fill and stroke color
 		Color primary = strokeColor;
@@ -182,7 +183,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		emitPointerPositionEvent(e);
+		emitPointerPositionEvent(e.getPoint());
 		isShapeDragged = true;
 		int x2 = e.getX();
 		int y2 = e.getY();
@@ -198,7 +199,7 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		emitPointerPositionEvent(e);
+		emitPointerPositionEvent(e.getPoint());
 	}
 
 	@Override
@@ -228,6 +229,8 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 				drawShape.updatePointer(x2, y2, mod);
 				//Draw to the canvas
 				drawShape.renderToImage(canvas);
+				//Dispatch image modified event
+				emitCanvasModifiedEvent();
 			}
 		}
 
@@ -256,34 +259,41 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 	 * Update mouse position in status bar when mouse motion occurs
 	 * @param e
 	 */
-	public void emitPointerPositionEvent(MouseEvent e) {
+	public void emitPointerPositionEvent(Point pt) {
 		if (canvasListener == null) return;
-		canvasListener.canvasPointerPosition(new CanvasUpdateEvent(this, CanvasUpdateEvent.CANVAS_POINTERPOSCHANGE, e.getPoint()));
+		canvasListener.canvasPointerPosition(new CanvasUpdateEvent(this, CanvasUpdateEvent.CANVAS_POINTERPOSCHANGE, pt));
 	}
-
+	
 	/**
 	 * Update canvas size in status bar when resizing
 	 * @param width
 	 * @param height
 	 */
-	public void emitCanvasSizeEvent(int width, int height) {
+	public void emitCanvasSizeEvent() {
 		if (canvasListener == null) return;
+		int width = this.canvas.getWidth();
+		int height = this.canvas.getHeight();
 		canvasListener.canvasDimension(new CanvasUpdateEvent(this, CanvasUpdateEvent.CANVAS_DIMENSIONCHANGE, width, height));
+	}
+
+	/**
+	 * User modifies the canvas by drawing
+	 */
+	public void emitCanvasModifiedEvent() {
+		if (canvasListener == null) return;
+		canvasListener.canvasImageModify(new CanvasUpdateEvent(this, CanvasUpdateEvent.CANVAS_MODIFICATION));
 	}
 
 	public boolean loadImageFromFile(File imgFile) {
 		try {
 			BufferedImage img_loaded = ImageIO.read(imgFile);
+			if (img_loaded == null) return false;
 			this.setPreferredSize(new Dimension(img_loaded.getWidth(), img_loaded.getHeight()));
 			clearCanvas();
 			this.canvas.getGraphics().drawImage(img_loaded, 0, 0, null);
 			return true;
 		} catch (IOException e) { }
 		return false;
-	}
-
-	public BufferedImage getImageData() {
-		return this.canvas;
 	}
 
 	public boolean saveImageToFile(File filePath) {

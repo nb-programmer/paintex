@@ -53,6 +53,12 @@ public class PaintExEventMulticaster extends AWTEventMulticaster
 	}
 
 	@Override
+	public void canvasImageModify(CanvasUpdateEvent e) {
+		if (a != null) ((CanvasUpdateListener) a).canvasImageModify(e);
+        if (b != null) ((CanvasUpdateListener) b).canvasImageModify(e);
+	}
+
+	@Override
 	public void toolSelect(ToolbarEvent e) {
 		if (a != null) ((ToolbarListener) a).toolSelect(e);
         if (b != null) ((ToolbarListener) b).toolSelect(e);
