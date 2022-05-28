@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import paintex.event.CanvasUpdateEvent;
 import paintex.event.CanvasUpdateListener;
@@ -40,9 +41,16 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	protected ToolbarHandler toolbarAction;
 	
 	//Image to save on disk
+	private static String IMAGE_SUPPORTED_EXT[] = {"png", "jpg", "jpeg", "bmp"};
+	private static String IMAGE_EXPORT_EXT[] = {"pdf"};
+	
 	private ImageInstance currentImage;
 	private FileFilter imageFileFilter;
 	private FileFilter imageExportFileFilter;
+	
+	private FileNameExtensionFilter getFileNameFilter(String description, String[] extensions) {
+		return new FileNameExtensionFilter(String.format("%s (%s)", description, String.join("; ", extensions)), extensions);
+	}
 
 	public PaintExWindow() {
 		super(APPLICATION_TITLE);
@@ -52,58 +60,17 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		this.addAllComponents();
 		reset();
 	}
-	
+
 	public void reset() {
 		this.paintCanvas.reset();
 		this.toolBar.reset();
 		this.colorChoosePanel.reset();
 	}
-	
-	private boolean matchExtension(File f, String[] extensions) {
-		if (f.isDirectory()) {
-			return true;
-		} else {
-			String path = f.getAbsolutePath().toLowerCase();
-			for (int i = 0; i < extensions.length; i++) {
-				String extension = extensions[i];
-				
-				//Check file extension
-				if (path.endsWith(extension) &&(path.charAt(path.length() - extension.length())) == '.')
-					return true;
-			}
-		}
-		return false;
-	}
-	
+
 	public void initFileManager() {
 		this.currentImage = new ImageInstance();
-		this.imageFileFilter = new FileFilter() {
-			private static String IMAGE_EXT[] = {".png", ".jpg", ".jpeg", ".bmp"};
-			
-			@Override
-			public String getDescription() {
-				return String.format("Image Files (%s)", String.join("; ", IMAGE_EXT));
-			}
-			
-			@Override
-			public boolean accept(File f) {
-				return matchExtension(f, IMAGE_EXT);
-			}
-		};
-		
-		this.imageExportFileFilter = new FileFilter() {
-			private static String EXPORT_EXT[] = {".pdf"};
-			
-			@Override
-			public String getDescription() {
-				return String.format("Document Export Files (%s)", String.join("; ", EXPORT_EXT));
-			}
-			
-			@Override
-			public boolean accept(File f) {
-				return matchExtension(f, EXPORT_EXT);
-			}
-		};
+		this.imageFileFilter = getFileNameFilter("Image Files", IMAGE_SUPPORTED_EXT);
+		this.imageExportFileFilter = getFileNameFilter("Document Export Files", IMAGE_EXPORT_EXT);
 	}
 
 	protected void initWindow() {
@@ -132,7 +99,7 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		canvasScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		contentPane.add(canvasScroll);
 		
-		toolbarAction = new ToolbarHandler(this, paintCanvas, toolBar, colorChoosePanel);
+		toolbarAction = new ToolbarHandler(this, paintCanvas, colorChoosePanel);
 		
 		//Register Event listeners
 		paintCanvas.addCanvasListener(this);
@@ -154,9 +121,14 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		//Update status bar
 		statusBar.setCanvasSize(paintCanvas.getWidth(), paintCanvas.getHeight());
 	}
+	
+	public void refreshWindowTitle() { 
+		setTitle(String.format("%s%s - %s", this.currentImage.isModified ? "*" : "", this.currentImage.filePath.getName(), APPLICATION_TITLE));
+	}
 
 	public void start() {
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		this.refreshWindowTitle();
 		this.setVisible(true);
 	}
 	
@@ -285,25 +257,26 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	public void canvasDimension(CanvasUpdateEvent e) {
 		this.statusBar.setCanvasSize(e.x, e.y);
 		this.canvasScroll.invalidate();
+		this.currentImage.isModified = true;
+		this.refreshWindowTitle();
 	}
 
 	@Override
 	public void canvasImageModify(CanvasUpdateEvent e) {
 		this.currentImage.isModified = true;
+		this.refreshWindowTitle();
 	}
 	
 	/* Toolbar events */
 	
 	public class ToolbarHandler implements ToolbarListener {
 		protected PaintExCanvas canvas;
-		protected ToolBar toolBar;
 		protected ColorPalettePanel colSelector;
 		protected PaintExWindow owner;
 		
-		public ToolbarHandler(PaintExWindow owner, PaintExCanvas canvas, ToolBar toolBar, ColorPalettePanel colSelector) {
+		public ToolbarHandler(PaintExWindow owner, PaintExCanvas canvas, ColorPalettePanel colSelector) {
 			this.owner = owner;
 			this.canvas = canvas;
-			this.toolBar = toolBar;
 			this.colSelector = colSelector;
 		}
 
@@ -319,12 +292,18 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		}
 
 		@Override
+		public void toolProperty(ToolbarEvent e) {
+			if (e.selectedProperty.compareTo(ToolbarEvent.PROP_THICKNESS) == 0)
+				canvas.setLineThickness(e.thicknessSelected);
+		}
+
+		@Override
 		public void colorSelect(ToolbarEvent e) {
-			if (e.selectTarget.compareTo(ToolbarEvent.TARGET_PRIMARY) == 0)
+			if (e.selectedProperty.compareTo(ToolbarEvent.PROP_PRIMARY) == 0)
 				this.canvas.setStrokeColor(e.selectedColor);
-			else if (e.selectTarget.compareTo(ToolbarEvent.TARGET_SECONDARY) == 0)
+			else if (e.selectedProperty.compareTo(ToolbarEvent.PROP_SECONDARY) == 0)
 				this.canvas.setFillColor(e.selectedColor);
-			else if (e.selectTarget.compareTo(ToolbarEvent.TARGET_FILL_TYPE) == 0) {
+			else if (e.selectedProperty.compareTo(ToolbarEvent.PROP_FILL_TYPE) == 0) {
 				this.canvas.setFillStyle(e.fillType);
 			}
 		}
@@ -339,17 +318,20 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 				this.canvas.clearCanvas();
 				owner.currentImage = new ImageInstance(ImageInstance.lastUseDir);
 				owner.reset();
+				owner.refreshWindowTitle();
 			}
 		}
 
 		@Override
 		public void imageSave(ToolbarEvent e) {
 			owner.saveModifiedConfirm(false);
+			owner.refreshWindowTitle();
 		}
 
 		@Override
 		public void imageOpen(ToolbarEvent e) {
 			owner.openNewImage();
+			owner.refreshWindowTitle();
 		}
 
 		@Override

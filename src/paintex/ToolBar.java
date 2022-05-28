@@ -114,7 +114,6 @@ public class ToolBar extends JToolBar implements ActionListener {
 	private JComboBox<String> selectLineThickness;
 	private JToggleButton toolIsFillBox;
 	
-	private JFileChooser fc;
 	private ToolbarListener toolbarListener;
 
 	public ToolBar(PaintExWindow window) {
@@ -122,9 +121,6 @@ public class ToolBar extends JToolBar implements ActionListener {
 		
 		this.tool_action_buttons = new HashMap<ImageActionType,ToolActionButton>();
 		this.tool_select_buttons = new HashMap<PaintToolType,ToolSelectButton>(); 
-		
-		fc = new JFileChooser(new File("."));
-		fc.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "png"));
 		
 		initializeToolBar();
 		reset();
@@ -161,12 +157,15 @@ public class ToolBar extends JToolBar implements ActionListener {
 		selectLineThickness.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				JComboBox<String> thChooser = (JComboBox<String>)e.getSource();
+				JComboBox<String> source = (JComboBox<String>)e.getSource();
 				//Thickness value
-				String thicknessItem = (String) thChooser.getSelectedItem();
+				String thicknessItem = (String) source.getSelectedItem();
 				try {
 					float thickness = Float.parseFloat(thicknessItem);
-					System.out.println(thickness);
+
+					if (toolbarListener == null) return;
+					ToolbarEvent ev = new ToolbarEvent(source, ToolbarEvent.TOOLBAR_TOOLPROPERTY, ToolbarEvent.PROP_THICKNESS, thickness);
+					toolbarListener.toolProperty(ev);
 				} catch (NumberFormatException ex) {}
 			}
 		});

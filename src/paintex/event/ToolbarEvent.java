@@ -9,21 +9,24 @@ import paintex.ToolBar.ImageActionType;
 import paintex.ToolBar.PaintToolType;
 
 public class ToolbarEvent extends AWTEvent {
-	public static final String TARGET_FILL_TYPE = "FillType";
-	public static final String TARGET_PRIMARY = "Primary";
-	public static final String TARGET_SECONDARY = "Secondary";
+	public static final String PROP_FILL_TYPE = "FillType";
+	public static final String PROP_PRIMARY = "Primary";
+	public static final String PROP_SECONDARY = "Secondary";
+	public static final String PROP_THICKNESS = "lineThickness";
 
 	public static final int TOOLBAR_TOOLSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 11;
 	public static final int TOOLBAR_BRUSHSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 12;
 	public static final int TOOLBAR_COLORSELECT		= java.awt.AWTEvent.RESERVED_ID_MAX + 13;
 	public static final int TOOLBAR_IMAGEACTION		= java.awt.AWTEvent.RESERVED_ID_MAX + 14;
+	public static final int TOOLBAR_TOOLPROPERTY	= java.awt.AWTEvent.RESERVED_ID_MAX + 15;
 
 	public int selection_id;
 	public ImageActionType actionType;
 	public PaintToolType toolType;
 	public ColorFillStyle fillType;
 	public Color selectedColor;
-	public String selectTarget;
+	public String selectedProperty;
+	public float thicknessSelected;
 	
 	public ToolbarEvent(Component source, int id) {
 		super(source, id);
@@ -39,11 +42,16 @@ public class ToolbarEvent extends AWTEvent {
 	public ToolbarEvent(Component source, int id, ColorFillStyle fillType) {
 		super(source, id);
 		this.fillType = fillType;
-		this.selectTarget = TARGET_FILL_TYPE;
+		this.selectedProperty = PROP_FILL_TYPE;
 	}
-	public ToolbarEvent(Component source, int id, Color color, String colorType) {
+	public ToolbarEvent(Component source, int id, String colorType, Color color) {
 		super(source, id);
 		this.selectedColor = color;
-		this.selectTarget = colorType;
+		this.selectedProperty = colorType;
+	}
+	public ToolbarEvent(Component source, int id, String propertyName, float thickness) {
+		super(source, id);
+		this.selectedProperty = propertyName;
+		this.thicknessSelected = thickness;
 	}
 }

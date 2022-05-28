@@ -35,7 +35,8 @@ public class BrushShape extends Shape {
 		    polyline.lineTo(p.x, p.y);
 
 		//Draw path to the image
-		g.setStroke(new BasicStroke(15.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+		float width = 15.0f + this.stroke.getLineWidth() * 2.0f;
+		g.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
 		g.draw(polyline);
 	}
 }

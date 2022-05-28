@@ -17,7 +17,7 @@ public class PaintExEventMulticaster extends AWTEventMulticaster
 		return (CanvasUpdateListener) removeInternal(l, oldl);
 	}
 	
-	public static ToolbarListener  add(ToolbarListener a, ToolbarListener  b) {
+	public static ToolbarListener add(ToolbarListener a, ToolbarListener  b) {
 		return (ToolbarListener) addInternal(a, b);
 	}
 
@@ -62,6 +62,12 @@ public class PaintExEventMulticaster extends AWTEventMulticaster
 	public void toolSelect(ToolbarEvent e) {
 		if (a != null) ((ToolbarListener) a).toolSelect(e);
         if (b != null) ((ToolbarListener) b).toolSelect(e);
+	}
+
+	@Override
+	public void toolProperty(ToolbarEvent e) {
+		if (a != null) ((ToolbarListener) a).toolProperty(e);
+        if (b != null) ((ToolbarListener) b).toolProperty(e);
 	}
 
 	@Override

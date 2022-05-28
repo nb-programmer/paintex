@@ -6,6 +6,7 @@ public interface ToolbarListener extends EventListener {
     public abstract void toolSelect(ToolbarEvent e);
     public abstract void brushSelect(ToolbarEvent e);
     public abstract void colorSelect(ToolbarEvent e);
+    public abstract void toolProperty(ToolbarEvent e);
     public abstract void imageNew(ToolbarEvent e);
     public abstract void imageOpen(ToolbarEvent e);
     public abstract void imageSave(ToolbarEvent e);

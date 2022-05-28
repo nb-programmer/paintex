@@ -52,13 +52,13 @@ public class ColorPalettePanel extends JToolBar {
 	public void setPrimaryColor(Color col) {
 		this.primaryColor.setBackground(col);
 		if (toolbarListener != null)
-			toolbarListener.colorSelect(new ToolbarEvent(this, ToolbarEvent.TOOLBAR_COLORSELECT, col, "Primary"));
+			toolbarListener.colorSelect(new ToolbarEvent(this, ToolbarEvent.TOOLBAR_COLORSELECT, "Primary", col));
 	}
 	
 	public void setSecondaryColor(Color col) {
 		this.secondaryColor.setBackground(col);
 		if (toolbarListener != null)
-			toolbarListener.colorSelect(new ToolbarEvent(this, ToolbarEvent.TOOLBAR_COLORSELECT, col, "Secondary"));
+			toolbarListener.colorSelect(new ToolbarEvent(this, ToolbarEvent.TOOLBAR_COLORSELECT, "Secondary", col));
 	}
 	
 	private class ColorSwatchButton extends JButton {
@@ -88,29 +88,29 @@ public class ColorPalettePanel extends JToolBar {
 			String colType = null;
 			switch (btn.type) {
 			case SWATCH_CHOOSEWHEEL_PRIMARY:
-				colType = ToolbarEvent.TARGET_PRIMARY;
+				colType = ToolbarEvent.PROP_PRIMARY;
 				selCol = getColorChooserColor(btn.getBackground(), colType);
 				break;
 			case SWATCH_CHOOSEWHEEL_SECONDARY:
-				colType = ToolbarEvent.TARGET_SECONDARY;
+				colType = ToolbarEvent.PROP_SECONDARY;
 				selCol = getColorChooserColor(btn.getBackground(), colType);
 				break;
 			case SWATCH_COLORPRESET:
 				selCol = btn.getBackground();
 				//Choose secondary color if Shift-key is held
 				if ((e.getModifiers() & ActionEvent.SHIFT_MASK) == 0)
-					colType = ToolbarEvent.TARGET_PRIMARY;
+					colType = ToolbarEvent.PROP_PRIMARY;
 				else
-					colType = ToolbarEvent.TARGET_SECONDARY;
+					colType = ToolbarEvent.PROP_SECONDARY;
 				break;
 			default:
 				break;
 			}
 			
 			if (selCol != null) {
-				if (colType.compareTo(ToolbarEvent.TARGET_PRIMARY) == 0)
+				if (colType.compareTo(ToolbarEvent.PROP_PRIMARY) == 0)
 					parent.setPrimaryColor(selCol);
-				else if (colType.compareTo(ToolbarEvent.TARGET_SECONDARY) == 0)
+				else if (colType.compareTo(ToolbarEvent.PROP_SECONDARY) == 0)
 					parent.setSecondaryColor(selCol);
 			}
 		}
