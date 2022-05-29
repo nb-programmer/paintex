@@ -8,6 +8,11 @@ import paintex.ToolBar.ColorFillStyle;
 import paintex.ToolBar.ImageActionType;
 import paintex.ToolBar.PaintToolType;
 
+/**
+ * Event class for Toolbar event such as action (save, open) or tool select (pencil, brush)
+ * @author 2004
+ *
+ */
 public class ToolbarEvent extends AWTEvent {
 	public static final String PROP_FILL_TYPE = "FillType";
 	public static final String PROP_PRIMARY = "Primary";

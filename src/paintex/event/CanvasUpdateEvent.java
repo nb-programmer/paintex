@@ -4,6 +4,11 @@ import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Point;
 
+/**
+ * Event class for Canvas-related event such as mouse position change, resize, modify
+ * @author 2004
+ *
+ */
 public class CanvasUpdateEvent extends AWTEvent {
 	public static final int CANVAS_POINTERPOSCHANGE = java.awt.AWTEvent.RESERVED_ID_MAX + 1;
 	public static final int CANVAS_DIMENSIONCHANGE = java.awt.AWTEvent.RESERVED_ID_MAX + 2;

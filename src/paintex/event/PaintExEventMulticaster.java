@@ -3,6 +3,13 @@ package paintex.event;
 import java.awt.AWTEventMulticaster;
 import java.util.EventListener;
 
+/**
+ * Allows multiple event listeners to be added to the event dispatcher class.
+ * This class is based on the default AWTEventMulticaster class and just adds our custom
+ * functions as implementation from the listener interfaces
+ * @author 2004
+ *
+ */
 public class PaintExEventMulticaster extends AWTEventMulticaster
 		implements CanvasUpdateListener, ToolbarListener {
 	protected PaintExEventMulticaster(EventListener a, EventListener b) {

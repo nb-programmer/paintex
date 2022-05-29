@@ -2,6 +2,13 @@ package paintex.event;
 
 import java.util.EventListener;
 
+/**
+ * Event listener for ToolbarEvent called by various toolbar buttons
+ * @author 2004
+ * @see paintex.event.ToolbarEvent
+ * @see paintex.ToolBar
+ * @see paintex.ColorPaletteToolbar
+ */
 public interface ToolbarListener extends EventListener {
     public abstract void toolSelect(ToolbarEvent e);
     public abstract void brushSelect(ToolbarEvent e);

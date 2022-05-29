@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import paintex.PaintExCanvas;
+
 /**
  * General class to store information needed to draw any kind of shape
  * @author 2004 2031 2033
