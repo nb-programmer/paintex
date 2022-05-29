@@ -10,13 +10,16 @@ import javax.swing.JToolBar;
  * This class creates a status tool bar at bottom of the screen and shows common
  * information like mouse position
  * 
- * @author
+ * @author 2004
  *
  */
 public class StatusInfo extends JToolBar {
 	private JLabel coordinates;
 	private JLabel frameSize;
 
+	/**
+	 * Default constructor to create the status bar
+	 */
 	public StatusInfo() {
 		//Fixed toolbar at bottom
 		this.setFloatable(false);
@@ -35,10 +38,20 @@ public class StatusInfo extends JToolBar {
 		this.add(frameSize);
 	}
 	
+	/**
+	 * Update status bar's mouse coordinate
+	 * @param x Pointer x position
+	 * @param y Pointer y position
+	 */
 	public void setCoordinate(int x, int y) {
 		coordinates.setText(String.format("%d x %d", x, y));
 	}
 	
+	/**
+	 * Update status bar's image dimensions
+	 * @param w Image width
+	 * @param h Image height
+	 */
 	public void setCanvasSize(int w, int h) {
 		frameSize.setText(String.format("%d x %d", w, h));
 	}

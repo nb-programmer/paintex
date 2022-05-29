@@ -5,6 +5,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+/**
+ * Rectangle shape to draw rectangle or square
+ * @author 2004
+ *
+ */
 public class RectangleShape extends Shape {
 	public RectangleShape(int x1, int y1, int x2, int y2, Color strokeColor, BasicStroke stroke, Color fillColor,
 			boolean isFilled) {

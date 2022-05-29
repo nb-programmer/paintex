@@ -12,5 +12,6 @@ public interface ToolbarListener extends EventListener {
     public abstract void imageSave(ToolbarEvent e);
     public abstract void imagePrint(ToolbarEvent e);
     public abstract void imageResize(ToolbarEvent e);
+    public abstract void imageRotate(ToolbarEvent e);
 }
 

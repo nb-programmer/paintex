@@ -5,6 +5,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+/**
+ * General class to store information needed to draw any kind of shape
+ * @author 2004 2031 2033
+ *
+ */
 public abstract class Shape {
 	protected int x1;
 	protected int x2;
@@ -48,6 +53,10 @@ public abstract class Shape {
 		this.y2 = y;
 	}
 	
+	/**
+	 * Whether this shape needs user to drag mouse to draw
+	 * @return true if dragging is required, false if not
+	 */
 	public boolean needsDraggingDraw() {
 		return true;
 	}
@@ -65,7 +74,7 @@ public abstract class Shape {
 
 	/**
 	 * Draw this shape to the given image
-	 * @param img
+	 * @param img Image to draw this shape onto
 	 */
 	public void renderToImage(BufferedImage img) {
 		Graphics2D g = (Graphics2D) img.getGraphics();
@@ -90,5 +99,14 @@ public abstract class Shape {
 		g.dispose();
 	}
 	
+	/**
+	 * Render the shape onto the given image using the already prepared Graphics2D object, optionally using the calculated coordinates and dimensions.
+	 * @param img Image onto which shape is to be drawn
+	 * @param graphics Graphics2D object to use for drawing
+	 * @param x Starting x coordinate
+	 * @param y Starting y coordinate
+	 * @param w Calculated width which includes Shift-modifier
+	 * @param h Calculated height which includes Shift-modifier
+	 */
 	protected abstract void render(BufferedImage img, Graphics2D graphics, int x, int y, int w, int h);
 }

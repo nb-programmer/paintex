@@ -26,6 +26,11 @@ import paintex.event.PaintExEventMulticaster;
 import paintex.event.ToolbarEvent;
 import paintex.event.ToolbarListener;
 
+/**
+ * Toolbar to show actions and shapes for image manipulation
+ * @author 2004 2031
+ *
+ */
 public class ToolBar extends JToolBar implements ActionListener {
 	
 	private static final String[] THICKNESS_VALUES = {"1", "2", "3", "4", "5", "6", "7", "8"};
@@ -38,7 +43,9 @@ public class ToolBar extends JToolBar implements ActionListener {
 		ACTION_OPEN("Open"),
 		ACTION_SAVE("Save"),
 		ACTION_PRINT("Print"),
-		ACTION_RESIZE("Resize", "/icons/size.png");
+		ACTION_RESIZE("Resize", "/icons/size.png"),
+		ACTION_RLEFT("Rotate Left"),
+		ACTION_RRIGHT("Rotate Right");
 		
 		public String text;
 		public String ico_uri;
@@ -75,6 +82,9 @@ public class ToolBar extends JToolBar implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Draw with outline, fill or both
+	 */
 	public enum ColorFillStyle {
 		OUTLINE_ONLY,
 		FILL_ONLY,
@@ -82,8 +92,7 @@ public class ToolBar extends JToolBar implements ActionListener {
 	}
 	
 	/**
-	 *  Custom button class
-	 *
+	 *  Custom button class for action button
 	 */
 	public class ToolActionButton extends JButton {
 		ImageActionType type;
@@ -96,6 +105,9 @@ public class ToolBar extends JToolBar implements ActionListener {
 			this.type = type;
 		}
 	}
+	/**
+	 * Custom button class for tool button
+	 */
 	public class ToolSelectButton extends JButton {
 		PaintToolType type;
 		public ToolSelectButton(String text, PaintToolType type) {
@@ -116,7 +128,10 @@ public class ToolBar extends JToolBar implements ActionListener {
 	
 	private ToolbarListener toolbarListener;
 
-	public ToolBar(PaintExWindow window) {
+	/**
+	 * Default constructor to build the toolbar
+	 */
+	public ToolBar() {
 		super("Tools", JToolBar.VERTICAL);
 		
 		this.tool_action_buttons = new HashMap<ImageActionType,ToolActionButton>();
@@ -126,6 +141,9 @@ public class ToolBar extends JToolBar implements ActionListener {
 		reset();
 	}
 
+	/**
+	 * Add all components to the toolbar
+	 */
 	private void initializeToolBar() {
 		this.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
 		this.setFloatable(false);
@@ -198,15 +216,26 @@ public class ToolBar extends JToolBar implements ActionListener {
 		this.add(toolIsFillBox);
 	}
 	
+	/**
+	 * Reset the toolbar to default state
+	 */
 	public void reset() {
 		selectLineThickness.setSelectedIndex(0);
 		toolIsFillBox.setSelected(false);
 	}
 	
+	/**
+	 * Add a ToolbarListener to handle tool select events and action events
+	 * @param l ToolbarListener object
+	 */
 	public synchronized void addToolbarListener(ToolbarListener l) {
 		toolbarListener = PaintExEventMulticaster.add(toolbarListener, l);
 	}
 	
+	/**
+	 * Remove an existing ToolbarListener
+	 * @param l Registered ToolbarListener object
+	 */
 	public synchronized void removeToolbarListener(ToolbarListener  l) {
 		toolbarListener = PaintExEventMulticaster.remove(toolbarListener, l);
 	}
@@ -234,6 +263,10 @@ public class ToolBar extends JToolBar implements ActionListener {
 				break;
 			case ACTION_RESIZE:
 				toolbarListener.imageResize(ev);
+				break;
+			case ACTION_RLEFT:
+			case ACTION_RRIGHT:
+				toolbarListener.imageRotate(ev);
 				break;
 			default:
 				break;

@@ -5,6 +5,11 @@ import java.awt.Color;
 
 import paintex.ToolBar.PaintToolType;
 
+/**
+ * Factory class to return shape object based on the tool selected, and applies the properties to the shape
+ * @author 2004 2031
+ *
+ */
 public class ShapeFactory {
 	public static Shape getShape(PaintToolType activeTool, int x1, int y1, Color strokeColor, BasicStroke stroke, Color fillColor, boolean isFilled, boolean isStroked) {
 		switch (activeTool) {

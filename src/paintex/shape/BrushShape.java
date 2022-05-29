@@ -8,6 +8,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/**
+ * Brush which draws thick paint with primary color
+ * @author 2031
+ *
+ */
 public class BrushShape extends Shape {
 	private ArrayList<Point> brushPoints;
 	

@@ -16,10 +16,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+/**
+ * Simple dialog box for assigning dimension to image
+ * @author 2004
+ *
+ */
 public class ImageSizeDialog extends JDialog {
 	protected boolean isConfirmed;
 	protected Dimension newDimension;
 	
+	/**
+	 * Constructor to generate the dialog box
+	 * @param owner JFrame that is parent of this dialog box
+	 * @param defaultCanvasSize Default value to fill-in the input boxes
+	 */
 	public ImageSizeDialog(JFrame owner, Dimension defaultCanvasSize) {
 		super(owner, "Image size", JDialog.DEFAULT_MODALITY_TYPE);
 		setBackground(Color.GRAY);
@@ -84,10 +94,18 @@ public class ImageSizeDialog extends JDialog {
 		setVisible(true);
 	}
 	
+	/**
+	 * Get the dimensions given by the user
+	 * @return Dimension (width and height), if applied
+	 */
 	public Dimension getNewDimension() {
 		return newDimension;
 	}
 	
+	/**
+	 * Returns true if dialog box was applied, false if cancelled
+	 * @return
+	 */
 	public boolean isConfirmed() {
 		return isConfirmed;
 	}

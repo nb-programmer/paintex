@@ -20,6 +20,12 @@ import paintex.event.CanvasUpdateListener;
 import paintex.event.ToolbarEvent;
 import paintex.event.ToolbarListener;
 
+/**
+ * Main window that contains tools, menu, canvas status bar, etc.
+ * 
+ * @author 2004 2031 2033
+ *
+ */
 public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	private static final String APPLICATION_TITLE = "PaintEx";
 
@@ -30,12 +36,12 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	//Toolbars
 	private JMenuBar menuBar;
 	private ToolBar toolBar;
-	private ColorPalettePanel colorChoosePanel;
+	private ColorPaletteToolbar colorChoosePanel;
 	private StatusInfo statusBar;
 
 	//Default canvas size for new image
-	private final int CONTENT_PANE_WIDTH = 1280;
-	private final int CONTENT_PANE_HEIGHT = 720;
+	private final int CANVAS_DEFAULT_WIDTH = 1280;
+	private final int CANVAS_DEFAULT_HEIGHT = 720;
 	
 	//Event handlers
 	protected ToolbarHandler toolbarAction;
@@ -48,10 +54,9 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	private FileFilter imageFileFilter;
 	private FileFilter imageExportFileFilter;
 	
-	private FileNameExtensionFilter getFileNameFilter(String description, String[] extensions) {
-		return new FileNameExtensionFilter(String.format("%s (%s)", description, String.join("; ", extensions)), extensions);
-	}
-
+	/**
+	 * Default constructor to initialize the window
+	 */
 	public PaintExWindow() {
 		super(APPLICATION_TITLE);
 		this.initWindow();
@@ -61,11 +66,26 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		reset();
 	}
 
+	/**
+	 * Reset state of whole application
+	 */
 	public void reset() {
 		this.paintCanvas.reset();
 		this.toolBar.reset();
 		this.colorChoosePanel.reset();
 	}
+	
+	
+	/**
+	 * Create a filter for File open and save boxes with description
+	 * @param description
+	 * @param extensions
+	 * @return
+	 */
+	private FileNameExtensionFilter getFileNameFilter(String description, String[] extensions) {
+		return new FileNameExtensionFilter(String.format("%s (%s)", description, String.join("; ", extensions)), extensions);
+	}
+
 
 	public void initFileManager() {
 		this.currentImage = new ImageInstance();
@@ -73,6 +93,9 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		this.imageExportFileFilter = getFileNameFilter("Document Export Files", IMAGE_EXPORT_EXT);
 	}
 
+	/**
+	 * Prepare the window to present to the user
+	 */
 	protected void initWindow() {
 		this.setResizable(true);
 		this.setLayout(new BorderLayout());
@@ -81,18 +104,21 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		this.addWindowListener(new WindowCloser());
 
 		// Fit window to the canvas and tools
-		this.setSize(CONTENT_PANE_WIDTH, CONTENT_PANE_HEIGHT);
-		this.setPreferredSize(new Dimension(CONTENT_PANE_WIDTH, CONTENT_PANE_HEIGHT));
+		this.setSize(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
+		this.setPreferredSize(new Dimension(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT));
 	}
 
+	/**
+	 * Create all components and add event listeners
+	 */
 	public void initAllComponents() {
 		contentPane = new JPanel();
 		contentPane.setLayout(new BorderLayout());
 
-		toolBar = new ToolBar(this);
+		toolBar = new ToolBar();
 		statusBar = new StatusInfo();
-		colorChoosePanel = new ColorPalettePanel();
-		paintCanvas = new PaintExCanvas(CONTENT_PANE_WIDTH, CONTENT_PANE_HEIGHT);
+		colorChoosePanel = new ColorPaletteToolbar();
+		paintCanvas = new PaintExCanvas(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
 
 		canvasScroll = new JScrollPane(paintCanvas);
 		canvasScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -122,10 +148,16 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		statusBar.setCanvasSize(paintCanvas.getWidth(), paintCanvas.getHeight());
 	}
 	
+	/**
+	 * Update title if image is modified
+	 */
 	public void refreshWindowTitle() { 
 		setTitle(String.format("%s%s - %s", this.currentImage.isModified ? "*" : "", this.currentImage.filePath.getName(), APPLICATION_TITLE));
 	}
 
+	/**
+	 * Start the application, show the window
+	 */
 	public void start() {
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.refreshWindowTitle();
@@ -134,7 +166,6 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	
 	/**
 	 * Save currently open image to the disk
-	 * 
 	 * @return Whether to continue after dialog closes. false if user cancels saving or saving fails
 	 */
 	public boolean saveModifiedConfirm(boolean askConfirm) {
@@ -180,6 +211,10 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		return false;
 	}
 	
+	/**
+	 * Open a save dialog box if an unsaved file needs to be saved to disk
+	 * @return true if not cancelled
+	 */
 	private boolean setSaveFilePathUnsaved() {
 		if (this.currentImage.filePath.exists()) return true;
 		
@@ -199,6 +234,10 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		return false;
 	}
 
+	/**
+	 * Shortcut to not prompt user to save modified file
+	 * @return
+	 */
 	public boolean saveModifiedConfirm() {
 		return saveModifiedConfirm(true);
 	}
@@ -271,10 +310,10 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	
 	public class ToolbarHandler implements ToolbarListener {
 		protected PaintExCanvas canvas;
-		protected ColorPalettePanel colSelector;
+		protected ColorPaletteToolbar colSelector;
 		protected PaintExWindow owner;
 		
-		public ToolbarHandler(PaintExWindow owner, PaintExCanvas canvas, ColorPalettePanel colSelector) {
+		public ToolbarHandler(PaintExWindow owner, PaintExCanvas canvas, ColorPaletteToolbar colSelector) {
 			this.owner = owner;
 			this.canvas = canvas;
 			this.colSelector = colSelector;
@@ -345,6 +384,20 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 			ImageSizeDialog newImgSize = new ImageSizeDialog(owner, canvas.getPreferredSize());
 			if (newImgSize.isConfirmed())
 				canvas.setPreferredSize(newImgSize.getNewDimension());
+		}
+
+		@Override
+		public void imageRotate(ToolbarEvent e) {
+			switch (e.actionType) {
+			case ACTION_RLEFT:
+				canvas.rotateCCW();
+				break;
+			case ACTION_RRIGHT:
+				canvas.rotateCW();
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }

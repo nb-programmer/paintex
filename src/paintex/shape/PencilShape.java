@@ -8,6 +8,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/**
+ * Pencil to draw path from start point continuously through the end point
+ * @author 2004
+ *
+ */
 public class PencilShape extends Shape {
 	private ArrayList<Point> pencilPoints;
 	

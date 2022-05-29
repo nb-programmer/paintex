@@ -8,6 +8,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/**
+ * Eraser to fill image with squares of secondary color
+ * @author 2031
+ *
+ */
 public class Eraser extends Shape {
 	private ArrayList<Point> eraserPoints;
 	

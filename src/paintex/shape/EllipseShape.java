@@ -5,6 +5,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+/**
+ * Ellipse shape to draw oval and circle
+ * @author 2031
+ *
+ */
 public class EllipseShape extends Shape {
 
 	public EllipseShape(int x1, int y1, Color strokeColor, BasicStroke stroke, Color fillColor, boolean isFilled) {

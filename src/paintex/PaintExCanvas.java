@@ -10,7 +10,11 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -26,6 +30,12 @@ import paintex.ToolBar.PaintToolType;
 import paintex.event.CanvasUpdateEvent;
 import paintex.event.CanvasUpdateListener;
 
+/**
+ * The white canvas to draw the image with various shapes and brushes
+ * 
+ * @author 2004
+ *
+ */
 public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionListener {
 	//Image to draw onto
 	private BufferedImage canvas = null, preview = null;
@@ -93,6 +103,66 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		
 		this.emitCanvasSizeEvent();
 		repaint();
+	}
+	
+	static BufferedImage deepCopy(BufferedImage bi) {
+		 ColorModel cm = bi.getColorModel();
+		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		 WritableRaster raster = bi.copyData(null);
+		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+	}
+	
+	/**
+	 * Rotate the image 90 degrees, swapping the two dimensions and retaining the image's content
+	 * @param direction Positive if clockwise, negative if counter-clockwise
+	 */
+	private void rotateImageRightAngle(double direction) {
+		double angle = 0.0;
+		
+		if (direction > 0.0) {
+			//Rotate clockwise 90 degrees
+			angle = Math.PI / 2.0;
+		}
+		else if (direction < 0.0) {
+			//Rotate counter-clockwise 90 degrees
+			angle = -Math.PI / 2.0;
+		}
+		else {
+			//Don't rotate, just exit
+			return;
+		}
+		//Keep a copy of the image
+		BufferedImage copy = deepCopy(canvas);
+		//Switch x and y axes
+		setPreferredSize(new Dimension(canvas.getHeight(), canvas.getWidth()));
+		//Erase image which isn't rotated yet
+		clearCanvas();
+		//Draw old copy but rotated clockwise 90 degrees
+		Graphics2D g = (Graphics2D) canvas.getGraphics();
+		AffineTransform oldTfm = g.getTransform();
+		//Translate image origin to center so rotation can be performed from the center
+		g.translate(canvas.getWidth() / 2.0, canvas.getHeight() / 2.0);
+		//Rotate to given angle
+		g.rotate(angle);
+		//Translate back to the origin after rotation
+		g.translate(-copy.getWidth() / 2.0, -copy.getHeight() / 2.0);
+		//Draw the original image, now with rotation
+		g.drawImage(copy, 0, 0, null);
+		g.setTransform(oldTfm);
+	}
+	
+	/**
+	 * Rotate the image clockwise 90 degrees
+	 */
+	public void rotateCW() {
+		rotateImageRightAngle(1.0);
+	}
+	
+	/**
+	 * Rotate the image counter-clockwise 90 degrees
+	 */
+	public void rotateCCW() {
+		rotateImageRightAngle(-1.0);
 	}
 	
 	/**
@@ -284,6 +354,11 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		canvasListener.canvasImageModify(new CanvasUpdateEvent(this, CanvasUpdateEvent.CANVAS_MODIFICATION));
 	}
 
+	/**
+	 * Try to load image from file and draw it on the canvas
+	 * @param imgFile
+	 * @return true if successful
+	 */
 	public boolean loadImageFromFile(File imgFile) {
 		try {
 			BufferedImage img_loaded = ImageIO.read(imgFile);
@@ -296,6 +371,11 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		return false;
 	}
 
+	/**
+	 * Convert the image to an image format and write to the given file path
+	 * @param filePath
+	 * @return true if successful
+	 */
 	public boolean saveImageToFile(File filePath) {
 		try {
 			ImageIO.write(this.canvas, "png", filePath);

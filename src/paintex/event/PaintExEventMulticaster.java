@@ -111,4 +111,10 @@ public class PaintExEventMulticaster extends AWTEventMulticaster
 		if (a != null) ((ToolbarListener) a).imageResize(e);
         if (b != null) ((ToolbarListener) b).imageResize(e);
 	}
+
+	@Override
+	public void imageRotate(ToolbarEvent e) {
+		if (a != null) ((ToolbarListener) a).imageRotate(e);
+        if (b != null) ((ToolbarListener) b).imageRotate(e);
+	}
 }
