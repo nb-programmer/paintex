@@ -212,6 +212,18 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 	}
 	
 	/**
+	 * Add a default extension if file doesn't have one
+	 * @param file File object
+	 * @param ext Extension
+	 * @return Updated file object
+	 */
+	private static File addFileExtIfNecessary(File file, String ext) {
+	    if(file.getName().lastIndexOf('.') == -1)
+	        file = new File(file.getAbsolutePath() + ext);
+	    return file;
+	}
+	
+	/**
 	 * Open a save dialog box if an unsaved file needs to be saved to disk
 	 * @return true if not cancelled
 	 */
@@ -220,10 +232,11 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 		
 		JFileChooser fc = new JFileChooser(ImageInstance.lastUseDir);
 		fc.setFileFilter(this.imageFileFilter);
+		fc.setSelectedFile(new File(this.currentImage.filePath.getName()));
 		int response = fc.showSaveDialog(this);
 		switch (response) {
 		case JFileChooser.APPROVE_OPTION:
-			File imgFile = fc.getSelectedFile();
+			File imgFile = addFileExtIfNecessary(fc.getSelectedFile(), ".png");
 			String imgPath = imgFile.getParentFile().getAbsolutePath();
 			this.currentImage = new ImageInstance(imgFile, imgPath);
 			return true;
