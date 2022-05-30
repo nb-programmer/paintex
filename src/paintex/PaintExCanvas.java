@@ -383,4 +383,12 @@ public class PaintExCanvas extends JPanel implements MouseListener, MouseMotionL
 		} catch (IOException e) { }
 		return false;
 	}
+	
+	/**
+	 * Return a copy of the image drawn on the canvas
+	 * @return BufferedImage instance
+	 */
+	public BufferedImage getImage() {
+		return PaintExCanvas.deepCopy(canvas);
+	}
 }

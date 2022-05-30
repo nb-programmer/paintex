@@ -375,8 +375,8 @@ public class PaintExWindow extends JFrame implements CanvasUpdateListener {
 
 		@Override
 		public void imagePrint(ToolbarEvent e) {
-			// TODO Auto-generated method stub
-			
+			if (ImagePrinter.printImage(canvas.getImage()) != null)
+				JOptionPane.showInternalMessageDialog(null, "Image is sent for printing", "Printing...", JOptionPane.INFORMATION_MESSAGE);
 		}
 
 		@Override
